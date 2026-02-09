@@ -5,68 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memo App</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        h1 { text-align: center; }
-        .memo-input { width: 100%; max-width: 600px; }
-        .memo-list { list-style: none; padding: 0; }
-        .memo-item { padding: 10px; background: #f9f9f9; margin: 5px 0; }
-        .memo-actions { display: flex; justify-content: space-between; }
-        .button { padding: 5px 10px; cursor: pointer; }
-        .delete { background: red; color: white; }
-        .edit { background: orange; color: white; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .memo {
+            margin-top: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            padding: 10px;
+            position: relative;
+        }
+        .delete {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <h1>Memo App</h1>
-    <input type="text" id="memoInput" class="memo-input" placeholder="Add a new memo" />
-    <button id="addButton" class="button">Add Memo</button>
-    <ul id="memoList" class="memo-list"></ul>
+    <div class="container">
+        <h1>Memo App</h1>
+        <textarea id="memoInput" placeholder="Type your memo here..."></textarea>
+        <button id="addMemo">Add Memo</button>
+        <div id="memoList"></div>
+    </div>
+
     <script>
-        const addButton = document.getElementById('addButton');
         const memoInput = document.getElementById('memoInput');
         const memoList = document.getElementById('memoList');
+        const addMemoButton = document.getElementById('addMemo');
 
-        // Load memos from localStorage
-        const loadMemos = () => {
-            const memos = JSON.parse(localStorage.getItem('memos')) || [];
+        let memos = JSON.parse(localStorage.getItem('memos')) || [];
+
+        const renderMemos = () => {
             memoList.innerHTML = '';
             memos.forEach((memo, index) => {
-                const li = document.createElement('li');
-                li.className = 'memo-item';
-                li.innerHTML = `<span>${memo}</span> <div class='memo-actions'><button class='edit' onclick='editMemo(${index})'>Edit</button> <button class='delete' onclick='deleteMemo(${index})'>Delete</button></div>`;
-                memoList.appendChild(li);
+                const memoDiv = document.createElement('div');
+                memoDiv.className = 'memo';
+                memoDiv.innerHTML = `
+                    ${memo}
+                    <button class="delete" onclick="deleteMemo(${index})">X</button>
+                `;
+                memoList.appendChild(memoDiv);
             });
         };
 
-        // Add a new memo
-        addButton.addEventListener('click', () => {
+        const deleteMemo = (index) => {
+            memos.splice(index, 1);
+            localStorage.setItem('memos', JSON.stringify(memos));
+            renderMemos();
+        };
+
+        addMemoButton.onclick = () => {
             const memoText = memoInput.value.trim();
             if (memoText) {
-                const memos = JSON.parse(localStorage.getItem('memos')) || [];
                 memos.push(memoText);
                 localStorage.setItem('memos', JSON.stringify(memos));
                 memoInput.value = '';
-                loadMemos();
+                renderMemos();
             }
-        });
-
-        // Edit a memo
-        window.editMemo = (index) => {
-            const memos = JSON.parse(localStorage.getItem('memos'));
-            memoInput.value = memos[index];
-            deleteMemo(index);
         };
 
-        // Delete a memo
-        window.deleteMemo = (index) => {
-            const memos = JSON.parse(localStorage.getItem('memos'));
-            memos.splice(index, 1);
-            localStorage.setItem('memos', JSON.stringify(memos));
-            loadMemos();
-        };
-
-        // Initial load
-        loadMemos();
+        renderMemos(); // Initial rendering of memos
     </script>
 </body>
 </html>
