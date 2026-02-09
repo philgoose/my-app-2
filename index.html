@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memo App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        .memo-input { width: 100%; max-width: 600px; }
+        .memo-list { list-style: none; padding: 0; }
+        .memo-item { padding: 10px; background: #f9f9f9; margin: 5px 0; }
+        .memo-actions { display: flex; justify-content: space-between; }
+        .button { padding: 5px 10px; cursor: pointer; }
+        .delete { background: red; color: white; }
+        .edit { background: orange; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Memo App</h1>
+    <input type="text" id="memoInput" class="memo-input" placeholder="Add a new memo" />
+    <button id="addButton" class="button">Add Memo</button>
+    <ul id="memoList" class="memo-list"></ul>
+    <script>
+        const addButton = document.getElementById('addButton');
+        const memoInput = document.getElementById('memoInput');
+        const memoList = document.getElementById('memoList');
+
+        // Load memos from localStorage
+        const loadMemos = () => {
+            const memos = JSON.parse(localStorage.getItem('memos')) || [];
+            memoList.innerHTML = '';
+            memos.forEach((memo, index) => {
+                const li = document.createElement('li');
+                li.className = 'memo-item';
+                li.innerHTML = `<span>${memo}</span> <div class='memo-actions'><button class='edit' onclick='editMemo(${index})'>Edit</button> <button class='delete' onclick='deleteMemo(${index})'>Delete</button></div>`;
+                memoList.appendChild(li);
+            });
+        };
+
+        // Add a new memo
+        addButton.addEventListener('click', () => {
+            const memoText = memoInput.value.trim();
+            if (memoText) {
+                const memos = JSON.parse(localStorage.getItem('memos')) || [];
+                memos.push(memoText);
+                localStorage.setItem('memos', JSON.stringify(memos));
+                memoInput.value = '';
+                loadMemos();
+            }
+        });
+
+        // Edit a memo
+        window.editMemo = (index) => {
+            const memos = JSON.parse(localStorage.getItem('memos'));
+            memoInput.value = memos[index];
+            deleteMemo(index);
+        };
+
+        // Delete a memo
+        window.deleteMemo = (index) => {
+            const memos = JSON.parse(localStorage.getItem('memos'));
+            memos.splice(index, 1);
+            localStorage.setItem('memos', JSON.stringify(memos));
+            loadMemos();
+        };
+
+        // Initial load
+        loadMemos();
+    </script>
+</body>
+</html>
